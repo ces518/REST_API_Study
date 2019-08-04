@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>me.june.restapi</groupId>
-    <artifactId>rest</artifactId>
+    <artifactId>restapi</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>rest</name>
     <description>Demo project for Spring Boot</description>
@@ -41,8 +41,14 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>runtime</scope>
+<!--            <scope>test</scope>-->
         </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.17</version>
+        </dependency>
+        <!-- lombok은 이 project를 참조할때 같이 참조하지 않음: optional -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
