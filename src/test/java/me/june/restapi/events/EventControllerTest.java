@@ -2,10 +2,13 @@ package me.june.restapi.events;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
@@ -15,13 +18,17 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest
+//@WebMvcTest
+@SpringBootTest
+@AutoConfigureMockMvc
 public class EventControllerTest {
 
     @Autowired
@@ -30,7 +37,8 @@ public class EventControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
-    @MockBean
+//    @MockBean
+    @Autowired
     EventRepository eventRepository;
 
     @Test
@@ -46,12 +54,15 @@ public class EventControllerTest {
                 .maxPrice(200)
                 .limitOfEnrollment(100)
                 .location("대전 둔산동 스타벅스")
+                .free(true)
+                .offline(true)
+                .eventStatus(EventStatus.PUBLISHED)
                 .build();
 
-        event.setId(1);
+        event.setId(100);
 
         // EventRepository를 Mocking했기때문에 return값을 mocking해주어야함
-        given(eventRepository.save(event)).willReturn(event);
+//        given(eventRepository.save(any(Event.class))).willReturn(event);
 
         String eventJsonString = objectMapper.writeValueAsString(event);
 
@@ -61,9 +72,13 @@ public class EventControllerTest {
                         .content(eventJsonString)
                     )
                     .andDo(print())
-                    .andExpect(jsonPath("$.id").value("1"))
+                    .andExpect(jsonPath("$.id").value(1))
                     .andExpect(status().isCreated()) // 201 응답
                     .andExpect(header().exists(HttpHeaders.LOCATION))
-                    .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE));
+                    .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE))
+                    .andExpect(jsonPath("$.id").value(Matchers.not(100))) // 입력값이 들어와선 안된다.
+                    .andExpect(jsonPath("$.free").value(Matchers.not(true))) // 입력값이 true가 나와선안됨
+                    .andExpect(jsonPath("$.offline").value(Matchers.not(true)))
+                    .andExpect(jsonPath("$.eventStatus").value(EventStatus.DRAFT.name()));
     }
 }

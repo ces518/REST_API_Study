@@ -1,5 +1,6 @@
 package me.june.restapi.events;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.MediaType;
@@ -23,14 +24,18 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 @RequestMapping(value = "/api/events", produces = MediaTypes.HAL_JSON_UTF8_VALUE)
 public class EventController {
 
+    private final ObjectMapper objectMapper;
     private final EventRepository eventRepository;
 
-    public EventController(EventRepository eventRepository) {
+    public EventController(ObjectMapper objectMapper, EventRepository eventRepository) {
+        this.objectMapper = objectMapper;
         this.eventRepository = eventRepository;
     }
 
     @PostMapping
-    public ResponseEntity createEvent (@RequestBody Event event) {
+    public ResponseEntity createEvent (@RequestBody EventDto eventDto) { // 입력값을 EventDto를 활용하여 받는다.
+
+        Event event = objectMapper.convertValue(eventDto, Event.class);
 
         Event savedEvent = eventRepository.save(event);
         // created를 생성할때는 항상 uri를 제공해야한다.

@@ -2,26 +2,17 @@ package me.june.restapi.events;
 
 import lombok.*;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 
 /**
  * Created by IntelliJ IDEA.
  * User: june
- * Date: 2019-08-04
- * Time: 22:32
+ * Date: 2019-08-07
+ * Time: 21:31
  **/
 @Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(of = "id")
-@Builder
-@Entity
-public class Event {
-
-    @Id @GeneratedValue
-    private Integer id;
-
+@Builder @AllArgsConstructor @NoArgsConstructor
+public class EventDto {
     private String name;
 
     private String description;
@@ -41,11 +32,4 @@ public class Event {
     private int maxPrice;
 
     private int limitOfEnrollment;
-
-    private boolean offline;
-
-    private boolean free;
-
-    @Enumerated(EnumType.STRING)
-    private EventStatus eventStatus = EventStatus.DRAFT;
 }
