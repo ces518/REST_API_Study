@@ -5,11 +5,13 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.net.URI;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -26,14 +28,20 @@ public class EventController {
 
     private final ObjectMapper objectMapper;
     private final EventRepository eventRepository;
+    private final EventValidator eventValidator;
 
-    public EventController(ObjectMapper objectMapper, EventRepository eventRepository) {
+    public EventController(ObjectMapper objectMapper, EventRepository eventRepository, EventValidator eventValidator) {
         this.objectMapper = objectMapper;
         this.eventRepository = eventRepository;
+        this.eventValidator = eventValidator;
     }
 
     @PostMapping
-    public ResponseEntity createEvent (@RequestBody EventDto eventDto) { // 입력값을 EventDto를 활용하여 받는다.
+    public ResponseEntity createEvent (@Valid @RequestBody EventDto eventDto, Errors errors) { // 입력값을 EventDto를 활용하여 받는다.
+        eventValidator.validate(eventDto, errors);
+        if (errors.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
 
         Event event = objectMapper.convertValue(eventDto, Event.class);
 
