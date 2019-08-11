@@ -44,6 +44,8 @@ public class EventController {
         }
 
         Event event = objectMapper.convertValue(eventDto, Event.class);
+        // 비즈니스 로직을 수행
+        event.update();
 
         Event savedEvent = eventRepository.save(event);
         // created를 생성할때는 항상 uri를 제공해야한다.

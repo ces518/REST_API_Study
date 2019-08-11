@@ -43,6 +43,7 @@ public class EventControllerTest {
     EventRepository eventRepository;
 
     @Test
+    @TestDescription("정상적인 이벤트 생성 테스트")
     public void 이벤트생성_테스트 () throws Exception {
         Event event = Event.builder()
                 .name("Spring")
@@ -55,8 +56,6 @@ public class EventControllerTest {
                 .maxPrice(200)
                 .limitOfEnrollment(100)
                 .location("대전 둔산동 스타벅스")
-                .free(true)
-                .offline(true)
                 .eventStatus(EventStatus.PUBLISHED)
                 .build();
 
@@ -77,8 +76,8 @@ public class EventControllerTest {
                     .andExpect(header().exists(HttpHeaders.LOCATION))
                     .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE))
                     .andExpect(jsonPath("$.id").value(Matchers.not(100))) // 입력값이 들어와선 안된다.
-                    .andExpect(jsonPath("$.free").value(Matchers.not(true))) // 입력값이 true가 나와선안됨
-                    .andExpect(jsonPath("$.offline").value(Matchers.not(true)))
+                    .andExpect(jsonPath("$.free").value(false)) // 유료 이벤트
+                    .andExpect(jsonPath("$.offline").value(true)) // 오프라인
                     .andExpect(jsonPath("$.eventStatus").value(EventStatus.DRAFT.name()));
     }
 
