@@ -55,7 +55,7 @@ public class Event {
         } else {
             this.free = Boolean.FALSE;
         }
-        if (this.location.trim().isEmpty()) {
+        if (this.location == null || this.location.trim().isEmpty()) {
             this.offline = Boolean.FALSE;
         } else {
             this.offline = Boolean.TRUE;
