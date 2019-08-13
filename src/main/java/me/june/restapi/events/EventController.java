@@ -1,6 +1,7 @@
 package me.june.restapi.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.MediaType;
@@ -52,6 +53,12 @@ public class EventController {
         // org.springframework.hateoas.mvc.ControllerLinkBuilder 를 사용하면 손쉽게 URI를 생성할 수 있음.
         ControllerLinkBuilder linkBuilder = linkTo(EventController.class).slash(savedEvent.getId()); // 새로 생성된 Event의 ID를 기반으로 Location Header로 들어간다.
         URI uri = linkBuilder.toUri();
-        return ResponseEntity.created(uri).body(savedEvent);
+
+        /* 링크정보에는 어떤 Method를 사용해야하는지에 대한 정보는 담을 수 없다. */
+        EventResource eventResource = new EventResource(savedEvent);
+        eventResource.add(linkTo(EventController.class).withRel("query-events"));
+        // eventResource.add(linkBuilder.withSelfRel());
+        eventResource.add(linkBuilder.withRel("update-event"));
+        return ResponseEntity.created(uri).body(eventResource);
     }
 }

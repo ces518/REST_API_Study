@@ -78,7 +78,11 @@ public class EventControllerTest {
                     .andExpect(jsonPath("$.id").value(Matchers.not(100))) // 입력값이 들어와선 안된다.
                     .andExpect(jsonPath("$.free").value(false)) // 유료 이벤트
                     .andExpect(jsonPath("$.offline").value(true)) // 오프라인
-                    .andExpect(jsonPath("$.eventStatus").value(EventStatus.DRAFT.name()));
+                    .andExpect(jsonPath("$.eventStatus").value(EventStatus.DRAFT.name()))
+                    .andExpect(jsonPath("$._links.self").exists())
+                    .andExpect(jsonPath("$._links.query-events").exists())
+                    .andExpect(jsonPath("$._links.update-event").exists())
+        ;
     }
 
     @Test
