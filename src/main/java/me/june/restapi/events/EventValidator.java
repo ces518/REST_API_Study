@@ -20,16 +20,15 @@ public class EventValidator{
         if (eventDto.getBasePrice() > eventDto.getMaxPrice() && eventDto.getMaxPrice() > 0) {
             // fieldError
             errors.rejectValue("basePrice", "wrongValue", "BasePrice is must be less than MaxPrice");
-            // globalError
-            errors.reject("basePrice Error !!");
         }
 
         LocalDateTime endEventDateTime = eventDto.getEndEventDateTime();
-        if (endEventDateTime.isBefore(eventDto.getBeginEventDateTime()) ||
-        endEventDateTime.isBefore(eventDto.getCloseEnrollmentDateTime()) ||
-        endEventDateTime.isBefore(eventDto.getBeginEnrollmentDateTime())) {
-            errors.rejectValue("endEventDateTime", "wrongValue", "EndEventDateTime is must be more than begin");
+        if (endEventDateTime != null) {
+            if (endEventDateTime.isBefore(eventDto.getBeginEventDateTime()) ||
+                    endEventDateTime.isBefore(eventDto.getCloseEnrollmentDateTime()) ||
+                    endEventDateTime.isBefore(eventDto.getBeginEnrollmentDateTime())) {
+                errors.rejectValue("endEventDateTime", "wrongValue", "EndEventDateTime is must be more than begin");
+            }
         }
-
     }
 }

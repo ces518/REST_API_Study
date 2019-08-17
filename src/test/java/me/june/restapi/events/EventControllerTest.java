@@ -92,7 +92,8 @@ public class EventControllerTest {
                             links(
                                     linkWithRel("self").description("link to self"),
                                     linkWithRel("query-events").description("link to query events"),
-                                    linkWithRel("update-event").description("link to update event")
+                                    linkWithRel("update-event").description("link to update event"),
+                                    linkWithRel("profile").description("link to profile")
                             ),
                             requestHeaders(
                                     headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
@@ -133,42 +134,11 @@ public class EventControllerTest {
                                     fieldWithPath("eventStatus").description("event status"),
                                     fieldWithPath("_links.self.href").description("link to self"),
                                     fieldWithPath("_links.query-events.href").description("link to query-events"),
-                                    fieldWithPath("_links.update-event.href").description("link to update-event")
+                                    fieldWithPath("_links.update-event.href").description("link to update-event"),
+                                    fieldWithPath("_links.profile.href").description("link to profile")
                             )
                     ))
         ;
-    }
-
-    @Test
-    public void 이벤트생성_테스트_이외의값_에러발생 () throws Exception {
-        Event event = Event.builder()
-                .name("Spring")
-                .description("REST API Study")
-                .beginEnrollmentDateTime(LocalDateTime.of(2019, 8 , 5, 11, 23))
-                .closeEnrollmentDateTime(LocalDateTime.of(2019, 8 , 5, 11, 23))
-                .beginEventDateTime(LocalDateTime.of(2019, 8, 15, 14, 21))
-                .endEventDateTime(LocalDateTime.of(2019, 8, 16, 14, 21))
-                .basePrice(100)
-                .maxPrice(200)
-                .limitOfEnrollment(100)
-                .location("대전 둔산동 스타벅스")
-                .free(true)
-                .offline(true)
-                .eventStatus(EventStatus.PUBLISHED)
-                .build();
-
-        event.setId(100);
-
-        String eventJsonString = objectMapper.writeValueAsString(event);
-
-        this.mockMvc.perform(post("/api/events/")
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
-                        .accept(MediaTypes.HAL_JSON_UTF8)
-                        .content(eventJsonString)
-                )
-                .andDo(print())
-                .andExpect(status().isBadRequest())// BAD_REQUEST 응답
-                ;
     }
 
     @Test
@@ -176,11 +146,11 @@ public class EventControllerTest {
         // 입력값을 아무것도 보내지않을 경우 테스트
         EventDto eventDto = EventDto.builder()
                 .build();
-
         this.mockMvc.perform(post("/api/events")
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .accept(MediaTypes.HAL_JSON_UTF8)
-                    .content(objectMapper.writeValueAsString(eventDto)))
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .accept(MediaTypes.HAL_JSON_UTF8)
+                        .content(objectMapper.writeValueAsString(eventDto))
+                    )
                     .andDo(print())
                     .andExpect(status().isBadRequest());
     }

@@ -59,6 +59,8 @@ public class EventController {
         eventResource.add(linkTo(EventController.class).withRel("query-events"));
         // eventResource.add(linkBuilder.withSelfRel());
         eventResource.add(linkBuilder.withRel("update-event"));
+        // profile Link 추가
+        eventResource.add(new Link("/docs/index.html#resources-events-create").withRel("profile"));
         return ResponseEntity.created(uri).body(eventResource);
     }
 }
