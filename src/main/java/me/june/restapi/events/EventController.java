@@ -2,16 +2,18 @@ package me.june.restapi.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.june.restapi.common.ErrorResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -36,6 +38,14 @@ public class EventController {
         this.objectMapper = objectMapper;
         this.eventRepository = eventRepository;
         this.eventValidator = eventValidator;
+    }
+
+    @GetMapping
+    public ResponseEntity getEvents (Pageable pageable, PagedResourcesAssembler<Event> assembler) { // paging과 관련된 파라메터들을 받아올 수 있음.
+        Page<Event> pagedEvents = this.eventRepository.findAll(pageable);
+        PagedResources<Resource<Event>> pagedResources = assembler.toResource(pagedEvents, e -> new EventResource(e));
+        pagedResources.add(new Link("/docs/index.html#resources-events-list").withRel("profile"));
+        return ResponseEntity.ok(pagedResources);
     }
 
     @PostMapping

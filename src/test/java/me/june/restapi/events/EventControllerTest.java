@@ -23,6 +23,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.stream.IntStream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyObject;
@@ -32,6 +33,9 @@ import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.li
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -190,5 +194,59 @@ public class EventControllerTest {
                 .andExpect(jsonPath("$._links.index").exists())
         ;
     }
+
+    @Test
+    @TestDescription("이벤트 30개를 10개씩 2번 페이지 조회하기")
+    public void eventsOfSecondPage () throws Exception {
+        // Given
+        // 이벤트 30개 핖요
+        IntStream.range(0, 30). forEach(this::generateEvent);
+
+        // when
+        this.mockMvc.perform(get("/api/events")
+                    .param("page", "1") // 0부터 시작
+                    .param("size", "10")
+                    .param("sort", "name,DESC")
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .accept(MediaTypes.HAL_JSON_UTF8)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page").exists())
+                .andExpect(jsonPath(("$._embedded.eventList[0]._links.self")).exists())
+                .andExpect(jsonPath(("$._links.self")).exists())
+                .andExpect(jsonPath(("$._links.profile")).exists())
+                .andDo(document("query-events",
+                    links(
+                            linkWithRel("first").description("첫 페이지"),
+                            linkWithRel("prev").description("이전 페이지"),
+                            linkWithRel("self").description("현재 페이지"),
+                            linkWithRel("next").description("다음 페이지"),
+                            linkWithRel("last").description("마지막 페이지"),
+                            linkWithRel("profile").description("profile")
+                    ),
+                    requestHeaders(
+                            headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
+                            headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                    ),
+                    requestParameters(
+                            parameterWithName("page").description("페이지 번호이며 0 부터 시작한다."),
+                            parameterWithName("size").description("페이지의 사이즈"),
+                            parameterWithName("sort").description("정렬 전략을 의미한다. fieldName,ASC||DESC")
+                    )
+                ))
+        ;
+
+        // then
+    }
+
+    private void generateEvent(int i) {
+        Event event = Event.builder()
+                .name("event" + i)
+                .description("test" + i)
+                .build();
+        this.eventRepository.save(event);
+    }
+
 
 }
