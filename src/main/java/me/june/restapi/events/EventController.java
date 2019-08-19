@@ -1,6 +1,7 @@
 package me.june.restapi.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import me.june.restapi.common.ErrorResource;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
@@ -41,7 +42,7 @@ public class EventController {
     public ResponseEntity createEvent (@Valid @RequestBody EventDto eventDto, Errors errors) { // 입력값을 EventDto를 활용하여 받는다.
         eventValidator.validate(eventDto, errors);
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors);
+            return ResponseEntity.badRequest().body(new ErrorResource(errors));
         }
 
         Event event = objectMapper.convertValue(eventDto, Event.class);
