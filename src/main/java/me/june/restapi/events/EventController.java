@@ -1,5 +1,6 @@
 package me.june.restapi.events;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.june.restapi.common.ErrorResource;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,7 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
@@ -65,7 +67,7 @@ public class EventController {
     public ResponseEntity createEvent (@Valid @RequestBody EventDto eventDto, Errors errors) { // 입력값을 EventDto를 활용하여 받는다.
         eventValidator.validate(eventDto, errors);
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(new ErrorResource(errors));
+            return badRequest(errors);
         }
 
         Event event = objectMapper.convertValue(eventDto, Event.class);
@@ -86,5 +88,38 @@ public class EventController {
         // profile Link 추가
         eventResource.add(new Link("/docs/index.html#resources-events-create").withRel("profile"));
         return ResponseEntity.created(uri).body(eventResource);
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity updateEvent (@PathVariable Integer id,
+                                       @Valid @RequestBody EventDto eventDto,
+                                       Errors errors) throws JsonMappingException {
+        // 이벤트가 존재하지 않는경우 404
+        Optional<Event> optionalEvent = this.eventRepository.findById(id);
+        if (!optionalEvent.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // 바인딩이 맞지않는경우 400
+        if (errors.hasErrors()) {
+            return badRequest(errors);
+        }
+
+        // 비지니스 로직상 맞지않은경우 400
+        this.eventValidator.validate(eventDto, errors);
+        if (errors.hasErrors()) {
+            return badRequest(errors);
+        }
+
+        Event existEvent = optionalEvent.get();
+        Event event = this.objectMapper.updateValue(existEvent, eventDto);
+        Event savedEvent = this.eventRepository.save(event);
+        EventResource eventResource = new EventResource(savedEvent);
+        eventResource.add(new Link("/doc/index.html#resources-events-update").withRel("profile"));
+        return ResponseEntity.ok(eventResource);
+    }
+
+    private ResponseEntity<ErrorResource> badRequest(Errors errors) {
+        return ResponseEntity.badRequest().body(new ErrorResource(errors));
     }
 }
