@@ -1,11 +1,15 @@
 package me.june.restapi.accounts;
 
+import org.hamcrest.Matchers;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -13,6 +17,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.useDefaultDateFormatsOnly;
+import static org.junit.Assert.fail;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -48,5 +54,19 @@ public class AccountServiceTest {
 
 
         assertThat(userDetails.getPassword()).isEqualTo(userDetails.getPassword());
+    }
+
+    @Rule
+    public ExpectedException expectedException;
+
+    @Test
+    public void findByUsernameFail () {
+
+        final String username = "random@gmail.com";
+
+        expectedException.expect(UsernameNotFoundException.class);
+        expectedException.expectMessage(Matchers.containsString(username));
+
+        accountService.loadUserByUsername(username);
     }
 }
