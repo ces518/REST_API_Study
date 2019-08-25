@@ -1,9 +1,18 @@
 package me.june.restapi.configs;
 
+import me.june.restapi.accounts.Account;
+import me.june.restapi.accounts.AccountRole;
+import me.june.restapi.accounts.AccountService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * AppConfig.java
@@ -28,4 +37,21 @@ public class AppConfig {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
+    @Bean
+    public ApplicationRunner applicationRunner () {
+        return new ApplicationRunner() {
+
+            @Autowired
+            AccountService accountService;
+
+            @Override
+            public void run(ApplicationArguments args) throws Exception {
+                Account account = Account.builder()
+                        .email("pupupee9@gmail.com")
+                        .password("june")
+                        .roles(Set.of(AccountRole.ADMIN, AccountRole.USER)).build();
+                accountService.saveAccount(account);
+            }
+        };
+    }
 }
