@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -45,10 +46,13 @@ public class AppConfig {
 
             @Override
             public void run(ApplicationArguments args) throws Exception {
+                Set roles = new HashSet();
+                roles.add(AccountRole.ADMIN);
+                roles.add(AccountRole.USER);
                 Account account = Account.builder()
                         .email("pupupee9@gmail.com")
                         .password("june")
-                        .roles(Set.of(AccountRole.ADMIN, AccountRole.USER)).build();
+                        .roles(roles).build();
                 accountService.saveAccount(account);
             }
         };
