@@ -7,6 +7,7 @@ import me.june.restapi.accounts.AccountRole;
 import me.june.restapi.accounts.AccountService;
 import me.june.restapi.common.BaseControllerTest;
 import me.june.restapi.common.TestDescription;
+import me.june.restapi.configs.AppProperties;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,13 +49,14 @@ public class EventControllerTest extends BaseControllerTest {
     @Autowired
     AccountRepository accountRepository;
 
+    @Autowired
+    AppProperties appProperties;
+
     @Before
     public void setUp () {
         this.eventRepository.deleteAll();
         this.accountRepository.deleteAll();
     }
-
-
 
     @Test
     @TestDescription("정상적인 이벤트 생성 테스트")
@@ -363,11 +365,11 @@ public class EventControllerTest extends BaseControllerTest {
     }
 
     private String getToken () throws Exception {
-        final String USER_NAME = "puppee9@gmail.com";
-        final String PASSWORD = "june";
+        final String USER_NAME = appProperties.getUserUsername();
+        final String PASSWORD = appProperties.getUserPassword();
         // httpBasic 메서드를 사용하여 basicOauth 헤더를 만듬
-        final String CLIENT_ID = "myApp";
-        final String CLIENT_SECRET = "pass";
+        final String CLIENT_ID = appProperties.getClientId();
+        final String CLIENT_SECRET = appProperties.getClientSecret();
 
         // given
         Set roles = new HashSet();

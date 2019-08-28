@@ -34,6 +34,9 @@ public class OAuthServerConfig extends AuthorizationServerConfigurerAdapter {
     @Autowired
     TokenStore tokenStore;
 
+    @Autowired
+    AppProperties appProperties;
+
     // 패스워드 인코더를 사용하여 클라이언트 시크릿을 확인한다.
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
@@ -54,10 +57,10 @@ public class OAuthServerConfig extends AuthorizationServerConfigurerAdapter {
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         clients.inMemory()
-                .withClient("myApp")
+                .withClient(appProperties.getClientId())
                 .authorizedGrantTypes("password", "refresh_token")
                 .scopes("read", "write")
-                .secret(this.passwordEncoder.encode("pass"))
+                .secret(this.passwordEncoder.encode(appProperties.getClientSecret()))
                 .accessTokenValiditySeconds(10 * 60)
                 .refreshTokenValiditySeconds(6 * 10 * 60)
         ;

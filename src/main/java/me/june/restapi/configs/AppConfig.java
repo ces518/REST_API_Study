@@ -44,16 +44,26 @@ public class AppConfig {
             @Autowired
             AccountService accountService;
 
+            @Autowired
+            AppProperties appProperties;
+
             @Override
             public void run(ApplicationArguments args) throws Exception {
-                Set roles = new HashSet();
-                roles.add(AccountRole.ADMIN);
-                roles.add(AccountRole.USER);
-                Account account = Account.builder()
-                        .email("pupupee9@gmail.com")
-                        .password("june")
-                        .roles(roles).build();
-                accountService.saveAccount(account);
+                Set userRoles = new HashSet();
+                userRoles.add(AccountRole.USER);
+                Account user = Account.builder()
+                        .email(appProperties.getUserUsername())
+                        .password(appProperties.getUserPassword())
+                        .roles(userRoles).build();
+                accountService.saveAccount(user);
+
+                Set adminRoles = new HashSet();
+                adminRoles.add(AccountRole.ADMIN);
+                Account admin = Account.builder()
+                        .email(appProperties.getAdminUsername())
+                        .password(appProperties.getAdminPassword())
+                        .roles(adminRoles).build();
+                accountService.saveAccount(admin);
             }
         };
     }
