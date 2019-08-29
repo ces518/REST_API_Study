@@ -199,6 +199,51 @@ public class EventControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @TestDescription("인증정보와 함께 이벤트 30개를 10개씩 2번 페이지 조회하기")
+    public void eventsOfSecondPageWithAuthentication () throws Exception {
+        // Given
+        // 이벤트 30개 핖요
+        IntStream.range(0, 30). forEach(this::generateEvent);
+
+        // when
+        this.mockMvc.perform(get("/api/events")
+                        .param("page", "1") // 0부터 시작
+                        .param("size", "10")
+                        .param("sort", "name,DESC")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .accept(MediaTypes.HAL_JSON_UTF8)
+                        .header(HttpHeaders.AUTHORIZATION, getBearerToken())
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page").exists())
+                .andExpect(jsonPath(("$._embedded.eventList[0]._links.self")).exists())
+                .andExpect(jsonPath(("$._links.self")).exists())
+                .andExpect(jsonPath(("$._links.profile")).exists())
+                .andExpect(jsonPath("$._links.create-event").exists())
+                .andDo(document("query-events",
+                        links(
+                                linkWithRel("first").description("첫 페이지"),
+                                linkWithRel("prev").description("이전 페이지"),
+                                linkWithRel("self").description("현재 페이지"),
+                                linkWithRel("next").description("다음 페이지"),
+                                linkWithRel("last").description("마지막 페이지"),
+                                linkWithRel("profile").description("profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        requestParameters(
+                                parameterWithName("page").description("페이지 번호이며 0 부터 시작한다."),
+                                parameterWithName("size").description("페이지의 사이즈"),
+                                parameterWithName("sort").description("정렬 전략을 의미한다. fieldName,ASC||DESC")
+                        )
+                ))
+        ;
+    }
+
+    @Test
     @TestDescription("이벤트 30개를 10개씩 2번 페이지 조회하기")
     public void eventsOfSecondPage () throws Exception {
         // Given
@@ -239,8 +284,6 @@ public class EventControllerTest extends BaseControllerTest {
                     )
                 ))
         ;
-
-        // then
     }
 
     private Event generateEvent(int i) {
