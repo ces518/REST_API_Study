@@ -1,7 +1,9 @@
 package me.june.restapi.events;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 import me.june.restapi.accounts.Account;
+import me.june.restapi.accounts.AccountSerializer;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -52,6 +54,7 @@ public class Event {
 
     /* Event's Owner */
     @ManyToOne
+    @JsonSerialize(using = AccountSerializer.class)
     private Account manager;
 
     public void update() {
